@@ -1,0 +1,25 @@
+# PowerShell script to enable stricter WinVerifyTrust signature verification
+
+# Registry paths for 64-bit and 32-bit applications
+$registryPaths = @(
+    "HKLM:\Software\Microsoft\Cryptography\Wintrust\Config",
+    "HKLM:\Software\Wow6432Node\Microsoft\Cryptography\Wintrust\Config"
+)
+
+# Registry key and value to enforce stricter verification
+$registryName = "EnableCertPaddingCheck"
+$registryValue = "1" # Enabling the stricter verification
+
+foreach ($path in $registryPaths) {
+    # Check if the registry path exists, create if not
+    if (-not (Test-Path $path)) {
+        Write-Output "Creating registry path: $path"
+        New-Item -Path $path -Force | Out-Null
+    }
+
+    # Create or update the registry key with the required value
+    Write-Output "Setting $registryName to $registryValue in $path"
+    Set-ItemProperty -Path $path -Name $registryName -Value $registryValue -Type String -Force
+}
+
+Write-Output "Stricter WinVerifyTrust signature verification has been enabled."
